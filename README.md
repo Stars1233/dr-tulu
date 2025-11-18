@@ -8,7 +8,13 @@
 
 </div>
 
+DR Tulu-8B is the first open Deep Research (DR) model trained for long-form DR tasks. DR Tulu-8B matches OpenAI DR on long-form DR benchmarks.
+
 ---
+
+<div align="center">
+<img src="assets/dr-tulu.png" alt="DR Tulu Overview" width="800"/>
+</div>
 
 ## Overview
 
