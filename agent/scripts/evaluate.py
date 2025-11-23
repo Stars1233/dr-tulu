@@ -24,7 +24,6 @@ import os
 from dotenv import load_dotenv
 from samplers import common
 
-# import evaluation.utils
 from evaluation.browse_comp_eval.browsecomp_eval import BrowseCompEval
 from evaluation.health_bench_eval.healthbench_eval import HealthBenchEval
 from evaluation.research_qa_eval.compute_coverage import compute_coverage
@@ -34,6 +33,7 @@ from evaluation.samplers.sampler.chat_completion_sampler import (
     OPENAI_SYSTEM_MESSAGE_API,
     ChatCompletionSampler,
 )
+from evaluation.short_form_qa_eval.short_form_eval import ShortFormQAEval
 from evaluation.simple_qa_eval.simpleqa_eval import SimpleQAEval
 
 load_dotenv()
@@ -182,6 +182,10 @@ def run_evaluation(
         eval_class = BrowseCompEval(grader_model=grader_sampler)
     elif task == "healthbench":
         eval_class = HealthBenchEval(grader_model=grader_sampler)
+    elif task in ["2wiki", "webwalker"]:
+        eval_class = ShortFormQAEval(
+            task=task, grader_model=grader_sampler, metric="judge"
+        )
     else:
         raise ValueError(f"Unsupported task type: {task}")
 

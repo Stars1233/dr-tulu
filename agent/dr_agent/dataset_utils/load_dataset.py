@@ -18,6 +18,8 @@ SUPPORTED_TASKS = {
     "deep_scholar_bench": "xinranz3/deepscholar_bench_fixed",
     "sqav2": "allenai/asta-bench",
     "researchqa": "realliyifei/ResearchQA",
+    "2wiki": "akariasai/2wiki_rand1k",
+    "webwalker": "rl-research/webwalker_test",
 }
 
 DATASET_URLS = {
@@ -70,6 +72,8 @@ def get_ablation_sample_size(benchmark: str, subset_name: str = None) -> int:
         "deep_scholar_bench": 63,
         "sqav2": 100,
         "genetic_diseases_qa": 100,
+        "2wiki": 100,
+        "webwalker": 680,
     }
 
     if benchmark == "healthbench":
@@ -129,6 +133,9 @@ def load_dataset(config: DatasetConfig) -> List[Dict]:
         return load_sqav2_data(num_examples, shuffle)
     elif config["name"] == "genetic_diseases_qa":
         return load_genetic_diseases_qa_data(num_examples, shuffle)
+    elif config["name"] in ["2wiki", "webwalker"]:
+        dataset_repo = SUPPORTED_TASKS[config["name"]]
+        return load_shortformqa_data(dataset_repo, num_examples, shuffle)
     else:
         raise ValueError(
             f"Unsupported dataset: {config['name']}. Supported datasets: {list(SUPPORTED_TASKS.keys())}, browsecomp, simpleqa, healthbench, researchqa"
@@ -370,6 +377,48 @@ def load_genetic_diseases_qa_data(
                 "additional_instructions": "",
             }
         )
+
+    if shuffle:
+        random.seed(42)
+        random.shuffle(examples)
+
+    if num_examples:
+        examples = examples[:num_examples]
+
+    return examples
+
+
+def load_shortformqa_data(
+    dataset_repo: str, num_examples: Optional[int] = None, shuffle: bool = False
+) -> List[Dict]:
+    """
+    Load Short-form QA dataset data.
+
+    Args:
+        dataset_repo: HuggingFace dataset repository name
+        num_examples: Limit to first N examples (optional)
+        shuffle: Whether to shuffle the examples
+
+    Returns:
+        List of Short-form QA examples
+    """
+    dataset = datasets.load_dataset(dataset_repo, split="test")
+    examples = []
+    for example in dataset:
+        example["problem"] = example["messages"][-1]["content"]
+        example["id"] = hashlib.md5(example["problem"].encode()).hexdigest()
+        example["answers"] = (
+            json.loads(example["ground_truth"])
+            if example["ground_truth"][0] == "["
+            else [example["ground_truth"]]
+        )
+        example["additional_instructions"] = (
+            """
+Your final response should be in the following format without any other text:
+Exact Answer: <your succinct, final answer>
+""".strip()
+        )
+        examples.append(example)
 
     if shuffle:
         random.seed(42)
