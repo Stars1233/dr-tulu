@@ -60,7 +60,7 @@ export JINA_API_KEY="your_jina_api_key_here"
 
 #### 1.4 Quick format guide (in the DRB repo)
 - Original query file: `data/prompt_data/query.jsonl`
-- Example output file `data/test_data/raw_data/claude-3-7-sonnet-latest.jsonl`
+- Example output file: `data/test_data/raw_data/claude-3-7-sonnet-latest.jsonl`
 
 
 ### 4. Run the evaluation and acquire the results
